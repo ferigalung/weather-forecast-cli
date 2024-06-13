@@ -47,11 +47,16 @@ func main() {
 	apiKey := os.Getenv("API_KEY")
 
 	// if user pass an argument after app command
+	index := 0
 	if len(os.Args) >= 2 {
-		q = os.Args[1]
+		if os.Args[1] == "besok" {
+			index = 1
+		} else {
+			q = os.Args[1]
+		}
 	}
 
-	res, err := http.Get("https://api.weatherapi.com/v1/forecast.json?key=" + apiKey + "&q=" + q + "&aqi=no")
+	res, err := http.Get("https://api.weatherapi.com/v1/forecast.json?days=2&key=" + apiKey + "&q=" + q + "&aqi=no")
 	if err != nil {
 		panic(err)
 	}
@@ -72,12 +77,16 @@ func main() {
 		panic(err)
 	}
 
-	location, current, hours := weather.Location, weather.Current, weather.Forecast.Forecastday[0].Hour
+	location, current, hours := weather.Location, weather.Current, weather.Forecast.Forecastday[index].Hour
 
 	color.Green("Current Weather")
 	fmt.Printf("%s, %s: %.0fC, %s\n\n", location.Name, location.Country, current.TempC, current.Condition.Text)
 
-	color.Green("Forecast")
+	if index == 1 {
+		color.Green("Tomorrow's forecast")
+	} else {
+		color.Green("Today's forecast")
+	}
 	for _, hour := range hours {
 		date := time.Unix(int64(hour.TimeEpoch), 0)
 		if date.Before(time.Now()) {
