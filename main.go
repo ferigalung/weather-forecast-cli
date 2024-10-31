@@ -73,6 +73,7 @@ func main() {
 	}
 
 	var weather Weather
+	degreeSymbol := "\u00B0"
 	err = json.Unmarshal(body, &weather)
 	if err != nil {
 		panic(err)
@@ -81,21 +82,24 @@ func main() {
 	location, current, hours := weather.Location, weather.Current, weather.Forecast.Forecastday[index].Hour
 
 	color.Green("Current Weather")
-	fmt.Printf("%s, %s: %.0fC, %s\n\n", location.Name, location.Country, current.TempC, current.Condition.Text)
+	fmt.Printf("%s, %s: %.0f%sC, %s\n\n", location.Name, location.Country, current.TempC, degreeSymbol, current.Condition.Text)
 
 	if index == 1 {
 		color.Green("Tomorrow's forecast")
 	} else {
 		color.Green("Today's forecast")
 	}
+
 	for _, hour := range hours {
 		date := time.Unix(int64(hour.TimeEpoch), 0)
 		if date.Before(time.Now()) {
 			continue
 		}
 
-		message := fmt.Sprintf("%s - %.0fC, %.0f%% CoR, %s\n", date.Format("15:04"), hour.TempC, hour.ChanceOfRain, hour.Condition.Text)
-		if hour.ChanceOfRain > 50 {
+		message := fmt.Sprintf("%s - %.0f%sC, %.0f%%, %s\n", date.Format("15:04"), hour.TempC, degreeSymbol, hour.ChanceOfRain, hour.Condition.Text)
+		if hour.ChanceOfRain > 50 && hour.ChanceOfRain <= 90 {
+			color.Yellow(message)
+		} else if hour.ChanceOfRain > 90 {
 			color.Red(message)
 		} else {
 			fmt.Print(message)
