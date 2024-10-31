@@ -38,13 +38,14 @@ type Weather struct {
 	} `json:"forecast"`
 }
 
+var apiKey string
+
 func main() {
 	err := godotenv.Load()
-	if err != nil {
-		panic(err)
+	if err == nil {
+		apiKey = os.Getenv("API_KEY")
 	}
 	q := "-7.19,111.92" // Bojonegoro
-	apiKey := os.Getenv("API_KEY")
 
 	// if user pass an argument after app command
 	index := 0
